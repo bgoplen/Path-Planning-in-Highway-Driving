@@ -154,4 +154,20 @@ vector<double> getXY(double s, double d, const vector<double> &maps_s,
   return {x,y};
 }
 
+vector<double> convert_to_car_coords(double x, double y, double ref_x,double ref_y,double ref_yaw) {
+  double shift_x = x - ref_x;
+  double shift_y = y - ref_y;
+  double car_x = shift_x*cos(-ref_yaw)-shift_y*sin(-ref_yaw);
+  double car_y = shift_x*sin(-ref_yaw)+shift_y*cos(-ref_yaw);
+
+  return {car_x,car_y};
+}
+
+vector<double> convert_to_global_coords(double x, double y, double ref_x,double ref_y,double ref_yaw) {
+  double global_x = x*cos(ref_yaw)-y*sin(ref_yaw)+ref_x;
+  double global_y = x*sin(ref_yaw)+y*cos(ref_yaw)+ref_y;
+
+  return {global_x,global_y};
+}
+
 #endif  // HELPERS_H

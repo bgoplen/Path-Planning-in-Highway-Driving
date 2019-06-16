@@ -1,3 +1,31 @@
+
+COMPILATION
+I used the following commands to compile and run:
+mkdir build
+cd build
+cmake ..
+make
+./path_planning
+
+VALID TRAJECTORIES
+Car seems to drive indefinitely without incident.  I've included a screen shot "highway_driving1.jpg" showing 12 miles without incident.  I have code at line 308 of main.cpp that limits the max speed to 22.3 meter/s (50mph).  Acceleration is limited by ensuring that the difference between adjacent velocites does not exceed 0.2 meter/s (10m/s^2 * 0.02s).  0.02s is the time interval between steps.  The velocity can change +/-0.1m/s so the difference is (0.1 - (-0.1)) = 0.2.  Using a spline for the trajectory helps ensure that the jerk limits are not exceeded.  I initially had the speed determination in the behavior section but moved it to the trajectory part because the car would almost rear end the car in front of it and car's speed would oscillate too much when following another car.  With the speed adjustment being made during trajectory, it could be done on a more fine grain scale.
+
+REFLECTION
+I used the code presented in the Project Q&A video as a starting point.  My code has three main components: 1) sensor fusion/prediction, 2) behavior 3) trajectory.
+
+In the sensor fusion section, I looked for the closest cars in front, in the right lane to the car, and in the left lane relative to the car.  Nearest car distances and velocities were saved as X_dist and X_vel where X=left, front, & right.  Car distances were in s coordinates and were predicted based on last known velocities.  If left/right cars were the between -20 and 30 meters away in the s-direction, I simply set the distance to 0 for convenience so that moves to those lanes were completely blocked.
+
+In the behavior section, a decision is made whether to change lanes.  Lane changes are only made if the distance to the car in front is less than 30 meters and there is more than 30 meters space to the lane the car is changing to.  If both the right and left lanes are free, the lane change is based on which one is moving faster based on the nearest car's speed in that lane.
+
+In the trajectory section, "spline.h" was utilized to make smooth trajectories for the car's movement.  The last two previous trajectory points and the points 30, 60, 90 meters in the new lane were used to create the knots for the spline.  These knot points were converted to vehicle coordinates for spline stability.  Position values from the spline were converted back to map coordinates before the path trajectory was given back to the system.  The unused previous path points were reused, and new points were added to the end of the previous path.  The distance in front of the car to the next car was adjusted for each path trajectory point using the previous points velocity, and the velocity was adjusted for each new point to try to match the velocity of the car in front of it and also move the car closer to a distance of 27.5 meters behind the car in front of it.  27.5 was used so that it is less than 30 and a lane change could be triggered but also allowed it to not get too close to the car in front of it.  Limits were placed on adjustments of the car's velocity and acceleration.  The car's speed was also adjusted using a hypotenuse to approximate the spline as discussed in the Project Q&A video.
+
+
+
+
+
+
+
+
 # CarND-Path-Planning-Project
 Self-Driving Car Engineer Nanodegree Program
    
